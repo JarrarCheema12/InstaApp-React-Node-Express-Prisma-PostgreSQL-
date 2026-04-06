@@ -1,0 +1,138 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model chat_users {
+  chat_id Int
+  user_id Int
+  chats   chats @relation(fields: [chat_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users   users @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([chat_id, user_id])
+}
+
+model chats {
+  id         Int          @id @default(autoincrement())
+  created_at DateTime?    @default(now()) @db.Timestamp(6)
+  chat_users chat_users[]
+  messages   messages[]
+}
+
+model comment_likes {
+  user_id    Int
+  comment_id Int
+  comments   comments @relation(fields: [comment_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users      users    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([user_id, comment_id])
+}
+
+model comments {
+  id            Int             @id @default(autoincrement())
+  user_id       Int?
+  post_id       Int?
+  text          String
+  created_at    DateTime?       @default(now()) @db.Timestamp(6)
+  comment_likes comment_likes[]
+  posts         posts?          @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users         users?          @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model friend_requests {
+  id                                     Int       @id @default(autoincrement())
+  from_user                              Int?
+  to_user                                Int?
+  status                                 String?   @default("pending") @db.VarChar(20)
+  created_at                             DateTime? @default(now()) @db.Timestamp(6)
+  users_friend_requests_from_userTousers users?    @relation("friend_requests_from_userTousers", fields: [from_user], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users_friend_requests_to_userTousers   users?    @relation("friend_requests_to_userTousers", fields: [to_user], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model friends {
+  user_id                        Int
+  friend_id                      Int
+  users_friends_friend_idTousers users @relation("friends_friend_idTousers", fields: [friend_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users_friends_user_idTousers   users @relation("friends_user_idTousers", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([user_id, friend_id])
+}
+
+model messages {
+  id         Int       @id @default(autoincrement())
+  chat_id    Int?
+  sender_id  Int?
+  text       String
+  read       Boolean?  @default(false)
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  chats      chats?    @relation(fields: [chat_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users      users?    @relation(fields: [sender_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model post_likes {
+  user_id Int
+  post_id Int
+  posts   posts @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users   users @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([user_id, post_id])
+}
+
+model posts {
+  id         Int          @id @default(autoincrement())
+  user_id    Int?
+  text       String
+  image_url  String?
+  created_at DateTime?    @default(now()) @db.Timestamp(6)
+  comments   comments[]
+  post_likes post_likes[]
+  users      users?       @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model stories {
+  id          Int           @id @default(autoincrement())
+  user_id     Int?
+  text        String
+  image_url   String?
+  created_at  DateTime?     @default(now()) @db.Timestamp(6)
+  expires_at  DateTime      @db.Timestamp(6)
+  users       users?        @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  story_views story_views[]
+}
+
+model story_views {
+  user_id  Int
+  story_id Int
+  stories  stories @relation(fields: [story_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users    users   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([user_id, story_id])
+}
+
+model users {
+  id                                               Int               @id @default(autoincrement())
+  fullname                                         String?           @db.VarChar(100)
+  username                                         String?           @db.VarChar(50)
+  email                                            String            @unique @db.VarChar(50)
+  password                                         String?
+  token                                            String?           @db.VarChar(255) 
+  tokenExpiry                                      DateTime?                      
+  isVerified                                       Boolean           @default(false) 
+  isProfileComplete                                Boolean           @default(false) 
+  created_at                                       DateTime?         @default(now()) @db.Timestamp(6)
+  chat_users                                       chat_users[]
+  comment_likes                                    comment_likes[]
+  comments                                         comments[]
+  friend_requests_friend_requests_from_userTousers friend_requests[] @relation("friend_requests_from_userTousers")
+  friend_requests_friend_requests_to_userTousers   friend_requests[] @relation("friend_requests_to_userTousers")
+  friends_friends_friend_idTousers                 friends[]         @relation("friends_friend_idTousers")
+  friends_friends_user_idTousers                   friends[]         @relation("friends_user_idTousers")
+  messages                                         messages[]
+  post_likes                                       post_likes[]
+  posts                                            posts[]
+  stories                                          stories[]
+  story_views                                      story_views[]
+}
