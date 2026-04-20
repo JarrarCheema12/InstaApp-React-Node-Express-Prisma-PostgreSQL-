@@ -9,8 +9,6 @@ lerna-debug.log*
 
 learning_outcomes.txt
 /public/pp.png
-
-/public/erd.png
 /src/features/auth/Demo.jsx
 .env
 
