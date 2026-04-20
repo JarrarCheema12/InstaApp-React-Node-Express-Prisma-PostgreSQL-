@@ -140,4 +140,4 @@ frontend/
 
 ---
 
-
+![ERD Diagram](frontend/public/erd.png)
