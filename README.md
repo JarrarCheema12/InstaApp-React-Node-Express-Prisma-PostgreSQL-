@@ -142,7 +142,7 @@ frontend/
 
 
 ## Database Design
-
+---
 ![ERD Diagram](frontend/public/erd.png)
 
 ---
